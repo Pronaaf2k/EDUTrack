@@ -52,7 +52,6 @@
 
 We welcome all contributions to make **EduTrack** better! You can:
 
-- **Report Bugs:** [Open an issue](https://github.com/Pronaaf2k/EduTrack/issues)
 - **Propose Features:** Suggest improvements or request features
 - **Submit Pull Requests:** Fork, branch, and PR your changes!
 - **Improve Documentation:** Help keep our README and docs clear and up-to-date

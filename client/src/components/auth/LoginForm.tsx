@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { UserIcon, LockClosedIcon, EyeIcon, EyeSlashIcon, ShieldCheckIcon } from '@heroicons/react/24/outline';
 import lockIconSvg from '../../assets/images/lock-icon-dark.svg';
+import { signInUser } from '../../firebase/auth'; // Import the Firebase auth function
 
 interface LoginFormProps {
   onLoginSuccess: () => void;
@@ -13,37 +14,46 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess }) => {
   const [captcha, setCaptcha] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false); // For loading state feedback
 
   const captchaValue = "3 4 4 6";
 
   const handleNext = (e: React.FormEvent) => {
     e.preventDefault();
     if (!username.trim()) {
-      setError('Username is required.');
+      setError('Username or Student ID is required.');
       return;
     }
     setError('');
     setStep(2);
   };
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!password) {
-      setError('Password is required.');
+    if (!password || !captcha) {
+      setError('Password and Captcha are required.');
       return;
     }
-    if (!captcha) {
-      setError('Captcha is required.');
-      return;
-    }
+    // Basic captcha check for UI purposes
     if (captcha !== captchaValue.replace(/\s/g, '')) {
       setError('Captcha does not match.');
       return;
     }
-    setError('');
-    console.log('Logging in with:', username, password);
-    // Here we will connect with Firestore for validation
-    onLoginSuccess();
+    
+    setIsLoading(true); // Start loading
+    setError(''); // Clear previous errors
+
+    try {
+      // Call the authentication logic from our firebase/auth.ts file
+      const user = await signInUser(username, password);
+      console.log('Login successful for user:', user);
+      onLoginSuccess(); // This will navigate to the dashboard
+    } catch (err: any) {
+      // If signInUser throws an error, display its message to the user
+      setError(err.message);
+    } finally {
+      setIsLoading(false); // Stop loading, whether success or fail
+    }
   };
 
   const inputBaseClasses = "block w-full pl-10 pr-3 py-3 bg-dark-secondary border border-dark-tertiary rounded-md text-light-primary placeholder-light-tertiary focus:outline-none sm:text-sm";
@@ -66,7 +76,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess }) => {
           <form onSubmit={handleNext} className="space-y-6">
             <div>
               <label htmlFor="username" className="block text-sm font-medium text-light-secondary mb-1">
-                Username
+                Username / Student ID
               </label>
               <div className="relative rounded-md shadow-sm">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -77,7 +87,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess }) => {
                   name="username"
                   id="username"
                   className={`${inputBaseClasses} ${inputFocusClasses}`}
-                  placeholder="Enter your username"
+                  placeholder="Enter your ID"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   autoFocus
@@ -151,9 +161,10 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess }) => {
             <div>
               <button
                 type="submit"
-                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-dark-primary bg-gradient-to-r from-brand-lime to-brand-cyan hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-dark-secondary focus:ring-brand-cyan transition duration-150"
+                disabled={isLoading}
+                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-dark-primary bg-gradient-to-r from-brand-lime to-brand-cyan hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-dark-secondary focus:ring-brand-cyan transition duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Login
+                {isLoading ? 'Logging in...' : 'Login'}
               </button>
             </div>
           </form>

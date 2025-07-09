@@ -1,15 +1,17 @@
+// client/src/firebase-config.ts
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 
-// TODO: Replace with your app's Firebase project configuration from the Firebase Console
+// Paste your actual configuration from the Firebase Console here
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_AUTH_DOMAIN",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_STORAGE_BUCKET",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyBBiL-CT8UQ3pK8UtwYqxnoO4uLIVgaBuE",
+  authDomain: "edutrack-931c5.firebaseapp.com",
+  projectId: "edutrack-931c5",
+  storageBucket: "edutrack-931c5.firebasestorage.app",
+  messagingSenderId: "629914554329",
+  appId: "1:629914554329:web:511d35db70257bfcb553c8",
+  measurementId: "G-NB135Y49JZ"
 };
 
 // Initialize Firebase

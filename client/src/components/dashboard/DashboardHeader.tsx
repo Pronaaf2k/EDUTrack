@@ -1,5 +1,9 @@
+// /client/src/components/dashboard/DashboardHeader.tsx
+
 import React, { useState } from 'react';
-import { Bars3Icon, UserCircleIcon, ArrowLeftOnRectangleIcon } from '@heroicons/react/24/outline';
+import { useNavigate } from 'react-router-dom';
+import { type Bars3Icon, UserCircleIcon, ArrowLeftOnRectangleIcon } from '@heroicons/react/24/outline';
+import { signOutUser } from '../../firebase/auth'; // Import the sign-out function
 
 interface DashboardHeaderProps {
   userName: string;
@@ -8,6 +12,19 @@ interface DashboardHeaderProps {
 
 const DashboardHeader: React.FC<DashboardHeaderProps> = ({ userName, userId }) => {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const navigate = useNavigate(); // Hook for programmatic navigation
+
+  // Function to handle the logout process
+  const handleLogout = async () => {
+    try {
+      await signOutUser();
+      // Redirect to the login page after a successful sign-out
+      navigate('/login'); 
+    } catch (error) {
+      console.error("Logout failed:", error);
+      // Optionally, you could show an error notification to the user here
+    }
+  };
 
   return (
     <header className="bg-dark-secondary shadow-lg sticky top-0 z-50">
@@ -59,14 +76,15 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({ userName, userId }) =
                     <UserCircleIcon className="h-5 w-5 mr-3 text-light-tertiary" />
                     My Profile
                   </a>
-                  <a
-                    href="/login"
-                    className="flex items-center px-4 py-3 text-sm text-light-secondary hover:bg-dark-tertiary hover:text-brand-pink"
+                  {/* Changed to a button to handle the click event */}
+                  <button
+                    onClick={handleLogout}
+                    className="w-full text-left flex items-center px-4 py-3 text-sm text-light-secondary hover:bg-dark-tertiary hover:text-brand-pink"
                     role="menuitem"
                   >
                     <ArrowLeftOnRectangleIcon className="h-5 w-5 mr-3 text-light-tertiary" />
                     Logout
-                  </a>
+                  </button>
                 </div>
               )}
             </div>

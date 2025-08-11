@@ -1,20 +1,25 @@
+// /client/src/App.tsx
+
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
+import ProtectedRoute from './components/common/ProtectedRoute'; // Import ProtectedRoute
 
 function App() {
   return (
     <Routes>
-      {/* Default route redirects to login */}
+      {/* Public Routes */}
+      <Route path="/login" element={<LoginPage />} />
       <Route path="/" element={<Navigate replace to="/login" />} />
       
-      {/* Define routes for your pages */}
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/dashboard" element={<DashboardPage />} />
+      {/* Protected Routes */}
+      <Route element={<ProtectedRoute />}>
+        <Route path="/dashboard" element={<DashboardPage />} />
+        {/* Add more protected routes here later */}
+        {/* <Route path="/dashboard/grades" element={<GradesPage />} /> */}
+      </Route>
 
-      {/* You can add more routes here later for specific modules */}
-      {/* <Route path="/dashboard/grades" element={<GradesPage />} /> */}
     </Routes>
   );
 }

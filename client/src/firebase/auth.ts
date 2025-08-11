@@ -1,4 +1,6 @@
-import { signInWithEmailAndPassword } from "firebase/auth";
+// /client/src/firebase/auth.ts
+
+import { signInWithEmailAndPassword, signOut } from "firebase/auth"; // Make sure signOut is imported
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { auth, db } from "../firebase-config";
 
@@ -43,5 +45,16 @@ export const signInUser = async (customId: string, password: string) => {
     // If Firebase Auth fails (e.g., wrong password), throw a user-friendly error.
     console.error("Firebase Auth sign-in error:", error.code);
     throw new Error("Invalid username or password.");
+  }
+};
+
+// **FIX:** Add the missing signOutUser function
+export const signOutUser = async () => {
+  try {
+    await signOut(auth);
+    console.log("User signed out successfully.");
+  } catch (error) {
+    console.error("Error signing out:", error);
+    throw new Error("Could not log out. Please try again.");
   }
 };

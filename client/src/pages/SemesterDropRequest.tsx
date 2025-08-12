@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext'; // ✅ Import useAuth from context
 
 const SemesterDropRequest: React.FC = () => {
   const { user } = useAuth(); // ✅ Access logged-in user from AuthProvider
+  const [reason, setReason] = useState('');
 
   return (
     <div className="min-h-screen bg-dark-primary text-white flex flex-col items-center justify-center px-4">
@@ -19,7 +20,7 @@ const SemesterDropRequest: React.FC = () => {
           />
         </div>
 
-        <div className="mb-6">
+        <div className="mb-4">
           <label className="block text-sm font-medium mb-1">ID</label>
           <input 
             type="text" 
@@ -29,10 +30,22 @@ const SemesterDropRequest: React.FC = () => {
           />
         </div>
 
+        <div className="mb-6">
+          <label className="block text-sm font-medium mb-1">Reason for Semester Drop</label>
+          <textarea
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
+            placeholder="Write your reason here..."
+            rows={4}
+            className="w-full bg-dark-primary border border-dark-secondary rounded px-3 py-2 text-white resize-none"
+          />
+        </div>
+
         <button
           type="button"
           className="w-full bg-red-600 hover:bg-red-700 transition-colors text-white font-semibold py-2 rounded"
-          onClick={() => alert('Semester drop request submitted!')}
+          onClick={() => alert(`Semester drop request submitted!\nReason: ${reason}`)}
+          disabled={!reason.trim()}
         >
           Submit Drop Request
         </button>

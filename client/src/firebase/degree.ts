@@ -1,14 +1,12 @@
 import { doc, getDoc, collection, query, where, getDocs } from "firebase/firestore";
-import { db } from "../firebase-config"; // Ensure this path to your firebase config is correct
+import { db } from "../firebase-config"; 
 
-// Defines the structure for a single course
 interface Course {
   code: string;
   title: string;
   credits: number;
 }
 
-// Defines the data structure that the component expects
 export interface DegreeProgressData {
   completedCourses: Course[];
   remainingCourses: Course[];
@@ -16,10 +14,8 @@ export interface DegreeProgressData {
   completedCredits: number;
 }
 
-// Fetches all the data and calculates progress
 export const getDegreeProgress = async (userId: string): Promise<DegreeProgressData> => {
   try {
-    // 1. Find the user in Firestore using their ID
     const userQuery = query(collection(db, "users"), where("customId", "==", userId));
     const userSnapshot = await getDocs(userQuery);
     if (userSnapshot.empty) {
@@ -33,7 +29,6 @@ export const getDegreeProgress = async (userId: string): Promise<DegreeProgressD
       throw new Error("User data is missing 'curriculumId'.");
     }
 
-    // 2. Get the curriculum (the user's degree plan)
     const curriculumRef = doc(db, "curriculums", curriculumId);
     const curriculumSnap = await getDoc(curriculumRef);
     if (!curriculumSnap.exists()) {
@@ -43,7 +38,6 @@ export const getDegreeProgress = async (userId: string): Promise<DegreeProgressD
     const totalCredits: number = curriculumData.totalCredits || 0;
     const requiredCourseCodes: string[] = curriculumData.requiredCourses || [];
 
-    // 3. Get the details for all courses in the curriculum
     const courseDetailsMap = new Map<string, Course>();
     if (requiredCourseCodes.length > 0) {
       const coursesQuery = query(collection(db, "courses"), where("code", "in", requiredCourseCodes));
@@ -54,7 +48,6 @@ export const getDegreeProgress = async (userId: string): Promise<DegreeProgressD
       });
     }
 
-    // 4. Determine which courses are completed and which are remaining
     const remainingCourseCodes = requiredCourseCodes.filter(
       (code) => !completedCourseCodes.includes(code)
     );
@@ -72,7 +65,6 @@ export const getDegreeProgress = async (userId: string): Promise<DegreeProgressD
       0
     );
 
-    // 5. Return the final, calculated data object
     return {
       completedCourses,
       remainingCourses,
@@ -82,6 +74,6 @@ export const getDegreeProgress = async (userId: string): Promise<DegreeProgressD
 
   } catch (error) {
     console.error("Error fetching degree progress:", error);
-    throw error; // This error will be caught by the useEffect in your page
+    throw error; 
   }
 };

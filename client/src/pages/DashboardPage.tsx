@@ -1,4 +1,3 @@
-// /client/src/pages/DashboardPage.tsx
 
 import React, { useState, useEffect } from 'react';
 import { collection, doc, getDoc, getDocs, query, orderBy } from 'firebase/firestore';
@@ -13,14 +12,12 @@ import DashboardFooter from '../components/common/DashboardFooter';
 import DegreeProgressTracker from '../components/dashboard/DegreeProgressTracker';
 import CourseGrades from '../components/dashboard/CourseGrades'; // Import the new component
 
-// The 'Course' type is what the DegreeProgressTracker component expects
 interface Course {
   code: string;
   title: string;
   credits: number;
 }
 
-// Interface for a single course grade record for the CourseGrades component
 interface GradeRecord {
   code: string;
   title: string;
@@ -28,7 +25,6 @@ interface GradeRecord {
   grade: string;
 }
 
-// Interface for the data of a single semester for the CourseGrades component
 interface SemesterData {
   semester: string;
   gpa: string;
@@ -54,7 +50,6 @@ interface Advisor {
   email: string;
 }
 
-// Helper function to calculate GPA
 const calculateGPA = (courses: GradeRecord[]): string => {
     const gradePoints: { [key: string]: number } = {
         'A': 4.0, 'A-': 3.7, 'B+': 3.3, 'B': 3.0, 'B-': 2.7,
@@ -80,7 +75,6 @@ const DashboardPage: React.FC = () => {
   const { currentUser } = useAuth();
   const [currentNavItem, setCurrentNavItem] = useState<ActiveNavItems>("Home");
 
-  // State for our dynamic data
   const [advisorData, setAdvisorData] = useState<Advisor | null>(null);
   const [degreeProgressData, setDegreeProgressData] = useState<any>(null);
   const [semestersData, setSemestersData] = useState<SemesterData[] | null>(null);
@@ -93,7 +87,6 @@ const DashboardPage: React.FC = () => {
     const fetchData = async () => {
       setLoading(true);
 
-      // 1. Fetch Faculty Advisor Data
       if (currentUser.profile.advisorId) {
         const advisorRef = doc(db, "faculty", currentUser.profile.advisorId);
         const advisorSnap = await getDoc(advisorRef);
@@ -102,14 +95,13 @@ const DashboardPage: React.FC = () => {
         }
       }
 
-      // 2. Fetch Degree Progress and Course Grades Data (Enrollments)
       const enrollmentsRef = collection(db, "users", currentUser.uid, "enrollments");
       const enrollmentsQuery = query(enrollmentsRef, orderBy("semester", "desc"));
       const enrollmentsSnap = await getDocs(enrollmentsQuery);
 
       const allEnrolledCourses: Enrollment[] = enrollmentsSnap.docs.map(d => d.data() as Enrollment);
 
-      // --- Logic for Degree Progress Tracker ---
+      
       const completedCourses: Course[] = allEnrolledCourses
         .filter(c => c.grade !== 'IP') // 'IP' for 'In Progress'
         .map(c => ({ code: c.courseId, ...c.courseDetails }));
@@ -127,7 +119,7 @@ const DashboardPage: React.FC = () => {
         remainingCourses: remainingCourses,
       });
 
-      // --- Logic for Course Grades Component ---
+      
       const semesterMap: { [key: string]: GradeRecord[] } = {};
       allEnrolledCourses.forEach(c => {
           if (!semesterMap[c.semester]) {

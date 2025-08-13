@@ -1,6 +1,6 @@
 // /client/src/context/AuthContext.tsx
 
-import React, { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, type ReactNode, useMemo } from 'react'; // ✅ Import useMemo
 import { onAuthStateChanged, type User as FirebaseAuthUser } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
 import { auth, db } from '../firebase-config';  
@@ -12,7 +12,6 @@ interface AppUser {
   displayName: string | null;
   role: string;
   customId: string;
-  // Add any other user-specific fields from your 'users' collection here
   profile: {
     degree: string;
     curriculum: string;
@@ -35,7 +34,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser: FirebaseAuthUser | null) => {
       if (firebaseUser) {
-        // User is signed in, now fetch their Firestore data
         const userDocRef = doc(db, 'users', firebaseUser.uid);
         const userDocSnap = await getDoc(userDocRef);
 
@@ -54,18 +52,20 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           setCurrentUser(null);
         }
       } else {
-        // User is signed out
         setCurrentUser(null);
       }
       setLoading(false);
     });
 
-    // Cleanup subscription on unmount
     return () => unsubscribe();
   }, []);
 
+  // ✅ FIX: Memoize the context value to prevent unnecessary re-renders of consuming components.
+  // This is the critical fix for the live application.
+  const value = useMemo(() => ({ currentUser, loading }), [currentUser, loading]);
+
   return (
-    <AuthContext.Provider value={{ currentUser, loading }}>
+    <AuthContext.Provider value={value}>
       {!loading && children}
     </AuthContext.Provider>
   );

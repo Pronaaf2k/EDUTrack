@@ -4,7 +4,8 @@ import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
-import ProtectedRoute from './components/common/ProtectedRoute'; // Import ProtectedRoute
+import ProtectedRoute from './components/common/ProtectedRoute';
+import GradeDisputePage from './pages/GradeDisputePage'; // Import the new page
 
 function App() {
   return (
@@ -16,8 +17,8 @@ function App() {
       {/* Protected Routes */}
       <Route element={<ProtectedRoute />}>
         <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/disputes" element={<GradeDisputePage />} /> {/* Add new route */}
         {/* Add more protected routes here later */}
-        {/* <Route path="/dashboard/grades" element={<GradesPage />} /> */}
       </Route>
 
     </Routes>

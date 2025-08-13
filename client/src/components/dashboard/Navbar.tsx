@@ -34,7 +34,14 @@ const Navbar: React.FC<NavbarProps> = ({ activeItem = "Home" }) => {
         </NavItem>
         
         <NavItem icon={<IdentificationIcon />} label="Degree" href="/dashboard" isActive={activeItem === "Degree"} className={navItemBaseClass} />
-        <NavItem icon={<CogIcon />} label="Services" href="/dashboard" isActive={activeItem === "Services"} className={navItemBaseClass} />
+        
+        <NavItem icon={<CogIcon />} label="Services" isDropdown isActive={activeItem === "Services"} className={navItemBaseClass}>
+          <SubNavItem label="Car Parking Request" href="/car-parking-request" />
+          <SubNavItem label="Course Add/Drop" href="/course-add-drop" />
+          <SubNavItem label="RFID Request" href="/rfid-request" />
+          <SubNavItem label="Semester Drop Request" href="/semester-drop-request" />
+        </NavItem>
+
         <NavItem icon={<ArrowLeftOnRectangleIcon />} label="Logout" href="/login" className={navItemBaseClass}/>
       </ul>
     </nav>

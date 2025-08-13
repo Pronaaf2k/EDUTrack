@@ -8,6 +8,10 @@ import ProtectedRoute from './components/common/ProtectedRoute';
 import GradeDisputePage from './pages/GradeDisputePage';
 import RoutinePage from './pages/RoutinePage';
 import AttendancePage from './pages/AttendancePage'; // Import the new AttendancePage
+import CarParkingRequest from './pages/CarParkingRequest';
+import CourseAddDrop from './pages/CourseAddDrop';
+import RfidRequest from './pages/RfidRequest';
+import SemesterDropRequest from './pages/SemesterDropRequest';
 
 function App() {
   return (
@@ -22,6 +26,10 @@ function App() {
         <Route path="/disputes" element={<GradeDisputePage />} />
         <Route path="/routine" element={<RoutinePage />} />
         <Route path="/attendance" element={<AttendancePage />} /> {/* Add the new attendance route */}
+        <Route path="/car-parking-request" element={<CarParkingRequest />} />
+        <Route path="/course-add-drop" element={<CourseAddDrop />} />
+        <Route path="/rfid-request" element={<RfidRequest />} />
+        <Route path="/semester-drop-request" element={<SemesterDropRequest />} />
         {/* Add more protected routes here later */}
       </Route>
 

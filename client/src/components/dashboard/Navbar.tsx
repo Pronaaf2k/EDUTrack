@@ -9,11 +9,12 @@ import {
   ArrowLeftOnRectangleIcon,
   IdentificationIcon,
   TableCellsIcon,
-  DocumentChartBarIcon
+  DocumentChartBarIcon,
+  CreditCardIcon // 1. ADD THIS IMPORT for the new payments icon
 } from '@heroicons/react/24/outline';
 
-// This type is now used by each page to identify itself.
-export type ActiveNavItems = "Home" | "Routine" | "Attendance" | "Grades" | "Disputes" | "Degree" | "Services" | null;
+// 2. UPDATE THIS TYPE to include the new payment-related navigation states
+export type ActiveNavItems = "Home" | "Routine" | "Attendance" | "Grades" | "Disputes" | "Degree" | "Services" | "Payments" | "Payment History" | null;
 
 interface NavbarProps {
   activeItem?: ActiveNavItems;
@@ -26,12 +27,23 @@ const Navbar: React.FC<NavbarProps> = ({ activeItem = "Home" }) => {
     <nav className="bg-dark-primary shadow-md border-b border-dark-tertiary">
       <ul className="container mx-auto px-2 sm:px-4 lg:px-6 flex flex-wrap justify-center md:justify-start space-x-0 md:space-x-1 py-1.5">
         <NavItem icon={<HomeIcon />} label="Home" href="/dashboard" isActive={activeItem === "Home"} className={navItemBaseClass}/>
-        {/* UPDATE: Changed href to "/routine" */}
         <NavItem icon={<TableCellsIcon />} label="Routine" href="/routine" isActive={activeItem === "Routine"} className={navItemBaseClass}/>
         <NavItem icon={<DocumentChartBarIcon />} label="Attendance" href="/dashboard" isActive={activeItem === "Attendance"} className={navItemBaseClass}/>
         
         <NavItem icon={<TrophyIcon />} label="Grades" isDropdown isActive={["Grades", "Disputes"].includes(activeItem || "")} className={navItemBaseClass}>
            <SubNavItem label="Grade Dispute" href="/disputes" isActive={activeItem === "Disputes"} />
+        </NavItem>
+
+        {/* 3. ADD THIS ENTIRE NavItem BLOCK for the Payments feature */}
+        <NavItem 
+            icon={<CreditCardIcon />} 
+            label="Payments" 
+            isDropdown 
+            isActive={["Payments", "Payment History"].includes(activeItem || "")} 
+            className={navItemBaseClass}
+        >
+           <SubNavItem label="Account Status" href="/payments" isActive={activeItem === "Payments"} />
+           <SubNavItem label="Online Payment History" href="/payment-history" isActive={activeItem === "Payment History"} />
         </NavItem>
         
         <NavItem icon={<IdentificationIcon />} label="Degree" href="/dashboard" isActive={activeItem === "Degree"} className={navItemBaseClass} />

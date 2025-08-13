@@ -1,5 +1,7 @@
+// /client/src/components/dashboard/CourseGrades.tsx
+
 import React, { useState } from 'react';
-import { AcademicCapIcon, ChevronDownIcon } from '@heroicons/react/24/outline';
+import { ChevronDownIcon } from '@heroicons/react/24/outline';
 
 // Interface for a single course grade record
 interface GradeRecord {
@@ -24,11 +26,12 @@ interface CourseGradesProps {
 
 // Helper function to get the color class based on the grade
 const getGradeColor = (grade: string): string => {
-  const gradeValue = parseFloat(grade);
-  if (grade.startsWith('A') || gradeValue === 4.0) return 'text-brand-lime';
-  if (grade.startsWith('B') || gradeValue >= 3.0) return 'text-brand-cyan';
-  if (grade.startsWith('C') || gradeValue >= 2.0) return 'text-brand-yellow';
-  if (grade.startsWith('D') || gradeValue >= 1.0) return 'text-brand-orange';
+  // This version correctly handles letter grades and "In Progress" status
+  if (grade.startsWith('A')) return 'text-brand-lime';
+  if (grade.startsWith('B')) return 'text-brand-cyan';
+  if (grade.startsWith('C')) return 'text-brand-yellow';
+  if (grade.startsWith('D')) return 'text-brand-orange';
+  if (grade === 'IP') return 'text-light-tertiary'; // Special case for In Progress courses
   return 'text-brand-pink'; // For F or other grades
 };
 
@@ -57,6 +60,7 @@ const CourseGrades: React.FC<CourseGradesProps> = ({ semesters, cgpa }) => {
             value={selectedSemester.semester}
             onChange={handleSemesterChange}
             className="appearance-none w-full md:w-64 bg-dark-tertiary border border-dark-tertiary/50 text-light-primary rounded-md py-2 pl-3 pr-10 focus:outline-none focus:ring-1 focus:ring-brand-blue"
+            aria-label="Select Semester"
           >
             {semesters.map(s => (
               <option key={s.semester} value={s.semester}>

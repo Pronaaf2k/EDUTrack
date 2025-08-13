@@ -56,71 +56,77 @@ const faculty = [
 ];
 
 const courses = {
-    "CSE115": { title: 'Programming Language I', credits: 3 },
-    "CSE115L": { title: 'Programming Language I Lab', credits: 1 },
-    "CSE173": { title: 'Discrete Mathematics', credits: 3 },
-    "CSE215": { title: 'Programming Language II', credits: 3 },
-    "CSE215L": { title: 'Programming Language II Lab', credits: 1 },
-    "CSE225": { title: 'Data Structures & Algorithms', credits: 3 },
-    "CSE225L": { title: 'Data Structures & Algorithms Lab', credits: 1 },
-    "CSE231": { title: 'Digital Logic Design', credits: 3 },
-    "CSE231L": { title: 'Digital Logic Design Lab', credits: 1 },
-    "CSE299": { title: 'Junior Design Project', credits: 3 },
-    "CSE311": { title: 'Database Systems', credits: 3 },
-    "CSE311L": { title: 'Database Systems Lab', credits: 1 },
-    "CSE327": { title: 'Software Engineering', credits: 3 },
-    "PHY107": { title: 'Physics I', credits: 3 },
-    "ENG102": { title: 'Introduction to Composition', credits: 3 },
-    "MAT120": { title: 'Calculus I', credits: 3 },
+    "CSE115": { title: 'Programming Language I', credits: 3, schedule: [{ day: 'Sunday', time: '09:40 AM - 11:10 AM', room: 'SAC304' }, { day: 'Tuesday', time: '09:40 AM - 11:10 AM', room: 'SAC304' }] },
+    "CSE115L": { title: 'Programming Language I Lab', credits: 1, schedule: [{ day: 'Thursday', time: '09:40 AM - 11:10 AM', room: 'LIB602' }] },
+    "CSE173": { title: 'Discrete Mathematics', credits: 3, schedule: [{ day: 'Monday', time: '11:20 AM - 12:50 PM', room: 'SAC308' }, { day: 'Wednesday', time: '11:20 AM - 12:50 PM', room: 'SAC308' }] },
+    "CSE215": { title: 'Programming Language II', credits: 3, schedule: [{ day: 'Sunday', time: '02:00 PM - 03:30 PM', room: 'NAC211' }, { day: 'Tuesday', time: '02:00 PM - 03:30 PM', room: 'NAC211' }] },
+    "CSE215L": { title: 'Programming Language II Lab', credits: 1, schedule: [{ day: 'Wednesday', time: '02:00 PM - 03:30 PM', room: 'LIB604' }] },
+    "CSE225": { title: 'Data Structures & Algorithms', credits: 3, schedule: [{ day: 'Monday', time: '08:00 AM - 09:30 AM', room: 'SAC301' }, { day: 'Wednesday', time: '08:00 AM - 09:30 AM', room: 'SAC301' }] },
+    "CSE225L": { title: 'Data Structures & Algorithms Lab', credits: 1, schedule: [{ day: 'Sunday', time: '08:00 AM - 09:30 AM', room: 'LIB601' }] },
 };
 
-const enrollments = [
-    ["student-samiyeel-01", "CSE115", "Spring 2024", "A"],
-    ["student-samiyeel-01", "CSE115L", "Spring 2024", "A"],
-    ["student-samiyeel-01", "CSE225", "Spring 2025", "IP"],
-    ["student-atique-02", "CSE115", "Spring 2024", "B+"],
+const enrollments = {
+    "student-samiyeel-01": [
+        { courseId: "CSE115", semester: "Spring 2025", grade: "A", attendanceSummary: { present: 22, absent: 2, total: 24 } },
+        { courseId: "CSE115L", semester: "Spring 2025", grade: "A", attendanceSummary: { present: 11, absent: 1, total: 12 } },
+        { courseId: "CSE225", semester: "Summer 2025", grade: "IP", attendanceSummary: { present: 4, absent: 0, total: 4 } }, // IP = In Progress
+        { courseId: "CSE173", semester: "Spring 2025", grade: "A-", attendanceSummary: { present: 23, absent: 1, total: 24 } }
+    ],
+    "student-atique-02": [
+        { courseId: "CSE115", semester: "Spring 2025", grade: "B+", attendanceSummary: { present: 20, absent: 4, total: 24 } },
+    ]
+};
+
+const gradeDisputes = [
+    {
+        studentUid: "student-samiyeel-01",
+        studentId: "2212779042",
+        courseId: "CSE173",
+        semester: "Spring 2025",
+        currentGrade: "A-",
+        expectedGrade: "A",
+        reason: "I believe there was a miscalculation in my final exam score. I performed very well and would like the script to be re-evaluated.",
+        status: "In Review",
+        submittedAt: admin.firestore.FieldValue.serverTimestamp(),
+        facultyId: "TNS1",
+        resolutionDetails: null,
+        resolvedAt: null
+    }
 ];
+
 
 const seedData = async () => {
   const batch = db.batch();
 
   console.log("Seeding Users...");
   for (const user of users) {
-    let authUserExists = true;
     try {
-      // Check if user already exists in Auth before trying to create
       await auth.getUserByEmail(user.email);
-      console.log(`Auth user with email ${user.email} already exists. Skipping creation.`);
+      console.log(`Auth user ${user.email} already exists. Updating Firestore data.`);
     } catch (error) {
       if (error.code === 'auth/user-not-found') {
-        authUserExists = false; // User doesn't exist, so we can create them
+        try {
+          await auth.createUser({
+            uid: user.uid,
+            email: user.email,
+            password: user.password,
+            displayName: user.displayName
+          });
+          console.log(`✅ Successfully created auth user: ${user.email}`);
+        } catch (creationError) {
+          console.error(`❌ Error creating auth user ${user.email}:`, creationError.message);
+          continue;
+        }
       } else {
         console.error(`Error checking for user ${user.email}:`, error.message);
-        continue; // Skip this user if there's another error
+        continue;
       }
     }
-
-    if (!authUserExists) {
-      try {
-        await auth.createUser({
-          uid: user.uid,
-          email: user.email,
-          password: user.password,
-          displayName: user.displayName
-        });
-        console.log(`✅ Successfully created auth user: ${user.email}`);
-      } catch (creationError) {
-        console.error(`❌ Error creating auth user ${user.email}:`, creationError.message);
-        continue; // If creation fails, skip adding them to Firestore
-      }
-    }
-    
-    // Only add to Firestore if the Auth user exists or was just created
     const { password, ...firestoreUserData } = user;
     const userRef = db.collection("users").doc(user.uid);
     batch.set(userRef, firestoreUserData);
   }
-  
+
   console.log("Seeding Faculty...");
   faculty.forEach(fac => {
       const facRef = db.collection("faculty").doc(fac.advisorId);
@@ -132,17 +138,26 @@ const seedData = async () => {
       const courseRef = db.collection("courses").doc(courseId);
       batch.set(courseRef, courses[courseId]);
   });
-  
+
   console.log("Seeding Student Enrollments...");
-  for (const [studentUid, courseId, semester, grade] of enrollments) {
-      const enrollmentRef = db.collection("users").doc(studentUid).collection("enrollments").doc();
-      batch.set(enrollmentRef, {
-          courseId: courseId,
-          semester: semester,
-          grade: grade,
-          courseDetails: courses[courseId]
-      });
+  for (const studentUid in enrollments) {
+      for (const enrollmentData of enrollments[studentUid]) {
+          const enrollmentRef = db.collection("users").doc(studentUid).collection("enrollments").doc();
+          batch.set(enrollmentRef, {
+              courseId: enrollmentData.courseId,
+              semester: enrollmentData.semester,
+              grade: enrollmentData.grade,
+              attendanceSummary: enrollmentData.attendanceSummary,
+              courseDetails: courses[enrollmentData.courseId]
+          });
+      }
   }
+  
+  console.log("Seeding Grade Disputes...");
+  gradeDisputes.forEach(dispute => {
+      const disputeRef = db.collection("gradeDisputes").doc();
+      batch.set(disputeRef, dispute);
+  });
 
   try {
     await batch.commit();
@@ -154,6 +169,8 @@ const seedData = async () => {
 
 seedData().then(() => {
     console.log("Seeder script finished.");
+    process.exit(0);
 }).catch(e => {
     console.error("Seeder script failed:", e);
+    process.exit(1);
 });

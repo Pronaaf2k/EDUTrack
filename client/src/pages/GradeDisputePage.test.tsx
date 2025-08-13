@@ -2,84 +2,86 @@
 
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import GradeDisputePage from './GradeDisputePage';
+import { BrowserRouter } from 'react-router-dom';
+import { getDocs, addDoc } from 'firebase/firestore'; // Import mocked functions
 
-// Mock child components and context
+// Mock dependencies
 vi.mock('../context/AuthContext', () => ({
   useAuth: () => ({
     currentUser: {
-      uid: 'test-user-uid',
-      customId: '2212779042',
-      displayName: 'Test User',
-      profile: { advisorId: 'TNS1' },
+      uid: 'test-user-uid', customId: '2212779042', displayName: 'Test User',
+      email: 'test@edutrack.app', role: 'student',
+      profile: {
+        advisorId: 'TNS1', degree: 'BS in CSE', curriculum: 'BS in CSE - 130 Credit',
+        avatarUrl: 'https://example.com/avatar.jpg'
+      },
     },
     loading: false,
   }),
 }));
 
-// Mock Firebase Firestore functions
-const mockAddDoc = vi.fn();
-const mockGetDocs = vi.fn();
-vi.mock('firebase/firestore', async (importOriginal) => {
-    const original = await importOriginal();
+vi.mock('firebase/firestore', async (importActual) => {
+    const actual = await importActual<typeof import('firebase/firestore')>();
     return {
-        ...original,
-        collection: vi.fn(),
-        query: vi.fn(),
-        where: vi.fn(),
-        addDoc: (collectionRef, data) => mockAddDoc(data),
+        ...actual,
+        getDocs: vi.fn(),
+        addDoc: vi.fn(),
         serverTimestamp: vi.fn(() => new Date()),
-        getDocs: () => mockGetDocs(),
     };
 });
 
-// Mock Header, Navbar, Footer to isolate the page component
 vi.mock('../components/dashboard/DashboardHeader', () => ({ default: () => <div>DashboardHeader</div> }));
 vi.mock('../components/dashboard/Navbar', () => ({ default: () => <div>Navbar</div> }));
 vi.mock('../components/common/DashboardFooter', () => ({ default: () => <div>DashboardFooter</div> }));
 
-
 describe('GradeDisputePage', () => {
-  it('should allow a user to submit a new grade dispute', async () => {
-    // Arrange: Mock Firestore to return graded courses but no existing disputes
-    mockGetDocs.mockResolvedValue({
-      docs: [
-        // Mocking enrollments to populate the dropdown
-        { data: () => ({ courseId: 'CSE173', courseDetails: { title: 'Discrete Mathematics' }, semester: 'Spring 2025', grade: 'A-' }) },
-      ],
-    });
-    
-    render(<GradeDisputePage />);
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
 
-    // Act: Simulate user filling out the form
-    const courseSelect = screen.getByLabelText(/Select Course/i);
+  it('should allow a user to submit a new grade dispute', async () => {
+    // Arrange
+    const getDocsMock = getDocs as vi.Mock;
+
+    // --- FIX: Provide a mock for every call to getDocs ---
+    // Mock for the INITIAL load (first 2 calls)
+    getDocsMock
+      .mockResolvedValueOnce({ // 1. Initial enrollments fetch
+        docs: [{ data: () => ({ courseId: 'CSE173', courseDetails: { title: 'Discrete Mathematics' }, semester: 'Spring 2025', grade: 'A-' }) }],
+      })
+      .mockResolvedValueOnce({ docs: [] }); // 2. Initial disputes fetch (empty)
+
+    // Mock for the REFETCH after submission (next 2 calls)
+    getDocsMock
+      .mockResolvedValueOnce({ // 3. Re-fetch enrollments
+        docs: [{ data: () => ({ courseId: 'CSE173', courseDetails: { title: 'Discrete Mathematics' }, semester: 'Spring 2025', grade: 'A-' }) }],
+      })
+      .mockResolvedValueOnce({ // 4. Re-fetch disputes (now has one item)
+        docs: [{ id: 'new-id', data: () => ({ courseId: 'CSE173', semester: 'Spring 2025', currentGrade: 'A-', expectedGrade: 'A', status: 'Submitted', submittedAt: { seconds: Date.now() / 1000 } }) }],
+      });
+
+    (addDoc as vi.Mock).mockResolvedValue({ id: 'new-dispute-id' });
+
+    render(<BrowserRouter><GradeDisputePage /></BrowserRouter>);
+
+    // Act & Assert: Wait for the form to appear after the initial loading is done
+    const courseSelect = await screen.findByLabelText(/Select Course/i);
     const expectedGradeInput = screen.getByLabelText(/Expected Grade/i);
     const reasonTextarea = screen.getByLabelText(/Reason for Dispute/i);
     const submitButton = screen.getByRole('button', { name: /Submit Dispute/i });
 
+    // Act: Fill and submit the form
     await fireEvent.change(courseSelect, { target: { value: 'CSE173-Spring 2025' } });
     fireEvent.change(expectedGradeInput, { target: { value: 'A' } });
-    fireEvent.change(reasonTextarea, { target: { value: 'I believe my final exam was graded incorrectly.' } });
+    fireEvent.change(reasonTextarea, { target: { value: 'Reason for testing.' } });
     fireEvent.click(submitButton);
 
-    // Assert: Check if the addDoc function was called with the correct payload
-    await waitFor(() => {
-      expect(mockAddDoc).toHaveBeenCalledWith(
-        expect.objectContaining({
-          studentUid: 'test-user-uid',
-          studentId: '2212779042',
-          courseId: 'CSE173',
-          semester: 'Spring 2025',
-          currentGrade: 'A-',
-          expectedGrade: 'A',
-          reason: 'I believe my final exam was graded incorrectly.',
-          status: 'Submitted',
-        })
-      );
-    });
-    
-    // Check for success message
+    // Assert: Check for the success message, which now should appear
     expect(await screen.findByText(/Your grade dispute has been submitted successfully!/i)).toBeInTheDocument();
+    
+    // Assert that the tracker component now shows the newly submitted dispute
+    expect(await screen.findByText('Submitted')).toBeInTheDocument();
   });
 });

@@ -8,7 +8,8 @@
 ![React](https://img.shields.io/badge/Frontend-ReactJS-61DAFB?style=for-the-badge&logo=react)
 ![Vite](https://img.shields.io/badge/Bundler-Vite-646CFF?style=for-the-badge&logo=vite)
 ![TailwindCSS](https://img.shields.io/badge/Styling-TailwindCSS-38BDF8?style=for-the-badge&logo=tailwindcss)
-![MongoDB](https://img.shields.io/badge/Database-MongoDB-47A248?style=for-the-badge&logo=mongodb)
+![Firebase](https://img.shields.io/badge/Database-Firebase-FFCA28?style=for-the-badge&logo=firebase)
+
 
 </div>
 
@@ -44,7 +45,7 @@
 | **ReactJS**  | Responsive frontend and interactive UI           |
 | **Vite**     | Fast development and production build tool       |
 | **Tailwind** | Modern, utility-first CSS framework              |
-| **MongoDB**  | Flexible and scalable NoSQL database             |
+| **Firebase** | Flexible and scalable Backend-as-a-Service (BaaS) |
 
 ---
 

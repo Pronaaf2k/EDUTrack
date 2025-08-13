@@ -1,29 +1,25 @@
-// BorrowingHistory.tsx
-
 import React, { useEffect, useState } from 'react';
-import { db } from '../firebase-config'; // Import Firebase configuration
-import { collection, getDocs, query, where } from 'firebase/firestore'; // Import Firestore methods
+import { db } from '../firebase-config';
+import { collection, getDocs, query, where } from 'firebase/firestore';
 
-// Define the BorrowingHistory component
 const BorrowingHistory = ({ userId }: { userId: string }) => {
-  const [history, setHistory] = useState<any[]>([]); // Store the borrowed books data
+  const [history, setHistory] = useState<any[]>([]);
 
-  // Fetch borrowed books based on the userId
   const fetchHistory = async () => {
-    const q = query(collection(db, 'borrowedBooks'), where('userID', '==', userId)); // Query to filter books based on userId
+    const q = query(collection(db, 'borrowedBooks'), where('userID', '==', userId));
     const querySnapshot = await getDocs(q);
     const historyData: any[] = [];
     
     querySnapshot.forEach((doc) => {
-      historyData.push({ ...doc.data(), id: doc.id }); // Collect the book data from Firestore
+      historyData.push({ ...doc.data(), id: doc.id });
     });
     
-    setHistory(historyData); // Set the borrowed books history data
+    setHistory(historyData);
   };
 
   useEffect(() => {
-    fetchHistory(); // Fetch the borrowing history when the component mounts
-  }, [userId]); // Dependency array to fetch data when userId changes
+    fetchHistory();
+  }, [userId]);
 
   return (
     <div>
@@ -39,7 +35,7 @@ const BorrowingHistory = ({ userId }: { userId: string }) => {
           ))}
         </ul>
       ) : (
-        <p>No borrowed books found.</p> // Display a message if no borrowed books exist
+        <p>No borrowed books found.</p>
       )}
     </div>
   );

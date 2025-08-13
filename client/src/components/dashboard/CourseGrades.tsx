@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { AcademicCapIcon, ChevronDownIcon } from '@heroicons/react/24/outline';
 
-// Interface for a single course grade record
+
 interface GradeRecord {
   code: string;
   title: string;
@@ -9,34 +9,29 @@ interface GradeRecord {
   grade: string;
 }
 
-// Interface for the data of a single semester
 interface SemesterData {
   semester: string;
   gpa: string;
   courses: GradeRecord[];
 }
 
-// Props for the main component
 interface CourseGradesProps {
   semesters: SemesterData[];
   cgpa: string;
 }
 
-// Helper function to get the color class based on the grade
 const getGradeColor = (grade: string): string => {
   const gradeValue = parseFloat(grade);
   if (grade.startsWith('A') || gradeValue === 4.0) return 'text-brand-lime';
   if (grade.startsWith('B') || gradeValue >= 3.0) return 'text-brand-cyan';
   if (grade.startsWith('C') || gradeValue >= 2.0) return 'text-brand-yellow';
   if (grade.startsWith('D') || gradeValue >= 1.0) return 'text-brand-orange';
-  return 'text-brand-pink'; // For F or other grades
+  return 'text-brand-pink'; 
 };
 
 const CourseGrades: React.FC<CourseGradesProps> = ({ semesters, cgpa }) => {
-  // State to manage the currently selected semester
   const [selectedSemester, setSelectedSemester] = useState<SemesterData>(semesters[0]);
 
-  // Handler for when the user selects a different semester
   const handleSemesterChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const semesterData = semesters.find(s => s.semester === event.target.value);
     if (semesterData) {

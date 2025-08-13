@@ -1,3 +1,4 @@
+// client/src/components/dashboard/Navbar.tsx
 import React from 'react';
 import NavItem, { SubNavItem } from './NavItem';
 import {
@@ -17,7 +18,7 @@ const Navbar: React.FC<NavbarProps> = ({ activeItem = "Home" }) => {
   return (
     <nav className="bg-dark-primary shadow-md border-b border-dark-tertiary">
       <ul className="container mx-auto px-2 sm:px-4 lg:px-6 flex flex-wrap justify-center md:justify-start space-x-0 md:space-x-1 py-1.5">
-        <NavItem icon={<HomeIcon />} label="Home" href="#" isActive={activeItem === "Home"} className={navItemBaseClass}/>
+        <NavItem icon={<HomeIcon />} label="Home" href="/dashboard" isActive={activeItem === "Home"} className={navItemBaseClass}/>
         <NavItem icon={<UserCircleIcon />} label="Profile" isDropdown isActive={activeItem === "Profile"} className={navItemBaseClass}>
           <SubNavItem label="Student Information" href="#" />
           <SubNavItem label="Change Password" href="#" />
@@ -26,6 +27,7 @@ const Navbar: React.FC<NavbarProps> = ({ activeItem = "Home" }) => {
            <SubNavItem label="Pre-advising" href="#" />
            <SubNavItem label="Advising Slip Print" href="#" />
         </NavItem>
+        {/* MODIFIED: The href for Grades is now an anchor link as it doesn't navigate away */}
         <NavItem icon={<TrophyIcon />} label="Grades" href="#" isActive={activeItem === "Grades"} className={navItemBaseClass} />
         <NavItem icon={<CreditCardIcon />} label="Payments" href="#" isActive={activeItem === "Payments"} className={navItemBaseClass} />
         <NavItem icon={<CalendarDaysIcon />} label="Attendance" href="#" isActive={activeItem === "Attendance"} className={navItemBaseClass}/>

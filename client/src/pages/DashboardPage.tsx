@@ -4,7 +4,6 @@ import React, { useState, useEffect } from 'react';
 import { collection, doc, getDoc, getDocs, query, orderBy } from 'firebase/firestore';
 import { db } from '../firebase-config';
 import { useAuth } from '../context/AuthContext';
-// ADDED: Import the new grades API function and its types
 import { getCourseGradesData, type SemesterData } from '../firebase/grades';
 
 import DashboardHeader from '../components/dashboard/DashboardHeader';
@@ -20,12 +19,6 @@ interface Course {
   title: string;
   credits: number;
 }
-
-// REMOVED: This interface is now handled in grades.ts
-// interface GradeRecord { ... }
-
-// REMOVED: This interface is now handled in grades.ts
-// interface SemesterData { ... }
 
 interface CourseDetails {
   title: string;
@@ -46,30 +39,6 @@ interface Advisor {
   email: string;
 }
 
-// COMMENTED OUT: This helper function has been moved to grades.ts
-/*
-const calculateGPA = (courses: GradeRecord[]): string => {
-    const gradePoints: { [key: string]: number } = {
-        'A': 4.0, 'A-': 3.7, 'B+': 3.3, 'B': 3.0, 'B-': 2.7,
-        'C+': 2.3, 'C': 2.0, 'C-': 1.7, 'D+': 1.3, 'D': 1.0, 'F': 0.0,
-    };
-
-    let totalPoints = 0;
-    let totalCredits = 0;
-
-    courses.forEach(course => {
-        if (gradePoints[course.grade] !== undefined) {
-            totalPoints += gradePoints[course.grade] * course.credits;
-            totalCredits += course.credits;
-        }
-    });
-
-    if (totalCredits === 0) return 'N/A';
-    return (totalPoints / totalCredits).toFixed(2);
-};
-*/
-
-
 const DashboardPage: React.FC = () => {
   const { currentUser } = useAuth();
   const [currentNavItem, setCurrentNavItem] = useState<ActiveNavItems>("Home");
@@ -85,8 +54,7 @@ const DashboardPage: React.FC = () => {
 
     const fetchData = async () => {
       setLoading(true);
-      try { // ADDED: try block for better error handling
-        // 1. Fetch Faculty Advisor Data
+      try {
         if (currentUser.profile.advisorId) {
           const advisorRef = doc(db, "faculty", currentUser.profile.advisorId);
           const advisorSnap = await getDoc(advisorRef);
@@ -95,16 +63,14 @@ const DashboardPage: React.FC = () => {
           }
         }
 
-        // 2. Fetch Degree Progress and Course Grades Data (Enrollments)
         const enrollmentsRef = collection(db, "users", currentUser.uid, "enrollments");
         const enrollmentsQuery = query(enrollmentsRef, orderBy("semester", "desc"));
         const enrollmentsSnap = await getDocs(enrollmentsQuery);
 
         const allEnrolledCourses: Enrollment[] = enrollmentsSnap.docs.map(d => d.data() as Enrollment);
 
-        // --- Logic for Degree Progress Tracker ---
         const completedCourses: Course[] = allEnrolledCourses
-          .filter(c => c.grade !== 'IP') // 'IP' for 'In Progress'
+          .filter(c => c.grade !== 'IP')
           .map(c => ({ code: c.courseId, ...c.courseDetails }));
 
         const completedCredits = completedCourses.reduce((sum, course) => sum + course.credits, 0);
@@ -113,60 +79,33 @@ const DashboardPage: React.FC = () => {
           .filter(c => c.grade === 'IP')
           .map(c => ({ code: c.courseId, ...c.courseDetails }));
 
+        // ADDED: Logic to group remaining courses by department
+        const remainingCoursesByDept = remainingCourses.reduce((acc, course) => {
+          const department = course.code.match(/^[a-zA-Z]+/)?.[0] || 'General';
+          if (!acc[department]) {
+            acc[department] = [];
+          }
+          acc[department].push(course);
+          return acc;
+        }, {} as { [key: string]: Course[] });
+
+        // MODIFIED: Update the state with the new department-grouped structure
         setDegreeProgressData({
-          totalCredits: 130,
+          totalCredits: 130, // This should eventually come from the curriculum data
           completedCredits: completedCredits,
           completedCourses: completedCourses,
-          remainingCourses: remainingCourses,
+          remainingCoursesByDept: remainingCoursesByDept, // Use the new grouped object
         });
-
-        // COMMENTED OUT: Old grade calculation logic
-        /*
-        // --- Logic for Course Grades Component ---
-        const semesterMap: { [key: string]: GradeRecord[] } = {};
-        allEnrolledCourses.forEach(c => {
-            if (!semesterMap[c.semester]) {
-                semesterMap[c.semester] = [];
-            }
-            semesterMap[c.semester].push({
-                code: c.courseId,
-                title: c.courseDetails.title,
-                credits: c.courseDetails.credits,
-                grade: c.grade,
-            });
-        });
-
-        const structuredSemesters: SemesterData[] = Object.entries(semesterMap).map(([semester, courses]) => ({
-            semester,
-            courses,
-            gpa: calculateGPA(courses),
-        })).sort((a, b) => b.semester.localeCompare(a.semester)); 
-
-        if(structuredSemesters.length > 0) {
-          setSemestersData(structuredSemesters);
-
-          const allGradedCourses = allEnrolledCourses
-              .filter(c => c.grade !== 'IP')
-              .map(c => ({
-                  code: c.courseId,
-                  title: c.courseDetails.title,
-                  credits: c.courseDetails.credits,
-                  grade: c.grade
-              }));
-          setCgpa(calculateGPA(allGradedCourses));
-        }
-        */
-
-        // ADDED: New logic to fetch and set grades data using the API
+        
         const gradesData = await getCourseGradesData(currentUser.uid);
         if (gradesData) {
           setSemestersData(gradesData.semesters);
           setCgpa(gradesData.cgpa);
         }
 
-      } catch (error) { // ADDED: catch block
+      } catch (error) {
           console.error("Failed to fetch dashboard data:", error)
-      } finally { // ADDED: finally block
+      } finally {
           setLoading(false);
       }
     };
@@ -191,7 +130,7 @@ const DashboardPage: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg-col-span-1">
+          <div className="lg:col-span-1">
             <UserProfileCard
               userName={currentUser.displayName!}
               userId={currentUser.customId}

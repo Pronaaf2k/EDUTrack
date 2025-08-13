@@ -26,12 +26,11 @@ interface CourseGradesProps {
 
 // Helper function to get the color class based on the grade
 const getGradeColor = (grade: string): string => {
-  // This version correctly handles letter grades and "In Progress" status
   if (grade.startsWith('A')) return 'text-brand-lime';
   if (grade.startsWith('B')) return 'text-brand-cyan';
   if (grade.startsWith('C')) return 'text-brand-yellow';
   if (grade.startsWith('D')) return 'text-brand-orange';
-  if (grade === 'IP') return 'text-light-tertiary'; // Special case for In Progress courses
+  if (grade === 'IP') return 'text-light-tertiary'; // In Progress
   return 'text-brand-pink'; // For F or other grades
 };
 
@@ -60,7 +59,6 @@ const CourseGrades: React.FC<CourseGradesProps> = ({ semesters, cgpa }) => {
             value={selectedSemester.semester}
             onChange={handleSemesterChange}
             className="appearance-none w-full md:w-64 bg-dark-tertiary border border-dark-tertiary/50 text-light-primary rounded-md py-2 pl-3 pr-10 focus:outline-none focus:ring-1 focus:ring-brand-blue"
-            aria-label="Select Semester"
           >
             {semesters.map(s => (
               <option key={s.semester} value={s.semester}>

@@ -6,6 +6,13 @@ import tailwindcss from '@tailwindcss/vite'
 export default defineConfig({
   plugins: [
     react(),
-    tailwindcss(), // Add the Tailwind plugin here
+    tailwindcss(),
   ],
+  // PASTE THIS 'test' SECTION
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: './src/setupTests.ts', // A file that runs before your tests
+    css: true,
+  },
 })

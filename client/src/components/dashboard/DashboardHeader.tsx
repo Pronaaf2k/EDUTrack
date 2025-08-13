@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Bars3Icon, UserCircleIcon, ArrowLeftOnRectangleIcon } from '@heroicons/react/24/outline';
+import { Link } from 'react-router-dom'; // Import Link for navigation
 
 interface DashboardHeaderProps {
   userName: string;
@@ -14,17 +15,18 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({ userName, userId }) =
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           <div className="flex items-center">
-            {/* Mobile sidebar toggle can be re-enabled later */}
+            {/* Mobile sidebar toggle (optional, can be re-enabled later) */}
             {/* <button className="mr-4 text-light-tertiary hover:text-brand-cyan focus:outline-none lg:hidden">
               <Bars3Icon className="h-6 w-6" />
             </button> */}
-            <a href="#" className="flex items-center">
+
+            <Link to="/" className="flex items-center">
               <img
                 src="/images/logo-wide.png"
-                alt="North South University"
+                alt="North South University logo"
                 className="h-10 md:h-12"
               />
-            </a>
+            </Link>
           </div>
 
           <div className="flex items-center space-x-4">
@@ -42,8 +44,17 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({ userName, userId }) =
                   <p className="text-sm font-medium text-light-primary leading-tight">Welcome,</p>
                   <p className="text-xs text-light-tertiary leading-tight">{userId}</p>
                 </div>
-                 <svg className={`ml-1 h-5 w-5 text-light-primary hidden md:block transform transition-transform duration-200 ${userMenuOpen ? 'rotate-180' : ''}`} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                <svg
+                  className={`ml-1 h-5 w-5 text-light-primary hidden md:block transform transition-transform duration-200 ${userMenuOpen ? 'rotate-180' : ''}`}
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                    clipRule="evenodd"
+                  />
                 </svg>
               </button>
               {userMenuOpen && (
@@ -51,22 +62,22 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({ userName, userId }) =
                   className="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-xl py-1 bg-dark-secondary ring-1 ring-dark-tertiary focus:outline-none"
                   role="menu"
                 >
-                  <a
-                    href="#"
+                  <Link
+                    to="/profile" // Replace with the correct route for the user's profile
                     className="flex items-center px-4 py-3 text-sm text-light-secondary hover:bg-dark-tertiary hover:text-brand-cyan"
                     role="menuitem"
                   >
                     <UserCircleIcon className="h-5 w-5 mr-3 text-light-tertiary" />
                     My Profile
-                  </a>
-                  <a
-                    href="/login"
+                  </Link>
+                  <Link
+                    to="/login" // Logout redirects to login page
                     className="flex items-center px-4 py-3 text-sm text-light-secondary hover:bg-dark-tertiary hover:text-brand-pink"
                     role="menuitem"
                   >
                     <ArrowLeftOnRectangleIcon className="h-5 w-5 mr-3 text-light-tertiary" />
                     Logout
-                  </a>
+                  </Link>
                 </div>
               )}
             </div>

@@ -2,33 +2,45 @@ import React, { useState } from 'react';
 import { db } from '../firebase-config'; // Import Firebase config
 import { collection, query, where, getDocs } from 'firebase/firestore';
 
+interface Book {
+  id: string;
+  bookTitle: string;
+  author: string;
+  courseCode: string;
+}
+
 const BookSearch = () => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [books, setBooks] = useState<any[]>([]);
+  const [books, setBooks] = useState<Book[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  // Handle the search operation
   const handleSearch = async () => {
     if (searchQuery.trim() === '') {
-      setBooks([]); // Clear the books array if the search query is empty
+      setBooks([]);
       return;
     }
 
-    // Query to fetch books with matching bookTitle
+    setLoading(true);
+    setError(null);
+
     const q = query(
       collection(db, 'books'),
-      where('bookTitle', '>=', searchQuery), // Matching the start of the title
-      where('bookTitle', '<=', searchQuery + '\uf8ff') // Ensuring a range for matching
+      where('bookTitle', '>=', searchQuery),
+      where('bookTitle', '<=', searchQuery + '\uf8ff')
     );
 
     try {
       const querySnapshot = await getDocs(q);
-      const booksData: any[] = [];
+      const booksData: Book[] = [];
       querySnapshot.forEach((doc) => {
-        booksData.push({ ...doc.data(), id: doc.id });
+        booksData.push({ ...doc.data(), id: doc.id } as Book);
       });
       setBooks(booksData);
     } catch (error) {
-      console.error('Error fetching books: ', error);
+      setError('Error fetching books');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -39,12 +51,15 @@ const BookSearch = () => {
         type="text"
         placeholder="Search by book title..."
         value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)} // Update query as the user types
+        onChange={(e) => setSearchQuery(e.target.value)}
       />
-      <button onClick={handleSearch}>Search</button>
+      <button onClick={handleSearch} disabled={loading}>
+        {loading ? 'Searching...' : 'Search'}
+      </button>
 
       <div>
-        {books.length === 0 ? (
+        {error && <p style={{ color: 'red' }}>{error}</p>}
+        {books.length === 0 && !loading ? (
           <p>No books found matching your search query.</p>
         ) : (
           <ul>

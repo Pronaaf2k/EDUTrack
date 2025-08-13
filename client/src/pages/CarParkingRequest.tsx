@@ -1,8 +1,8 @@
 import React from 'react';
-import { useAuth } from '../context/AuthContext'; // ✅ Import useAuth from context
+import { useAuth } from '../context/AuthContext'; 
 
 const CarParkingRequest: React.FC = () => {
-  const { user } = useAuth(); // ✅ Access logged-in user from AuthProvider
+  const { user } = useAuth(); 
 
   return (
     <div className="min-h-screen bg-dark-primary text-white flex flex-col items-center justify-center px-4">
@@ -14,7 +14,7 @@ const CarParkingRequest: React.FC = () => {
           <label className="block text-sm font-medium mb-1">Name</label>
           <input 
             type="text" 
-            value={user?.name || ''}  // ✅ Dynamic name
+            value={user?.name || ''}  
             readOnly 
             className="w-full bg-dark-primary border border-dark-secondary rounded px-3 py-2 text-white cursor-not-allowed"
           />
@@ -25,7 +25,7 @@ const CarParkingRequest: React.FC = () => {
           <label className="block text-sm font-medium mb-1">ID</label>
           <input 
             type="text" 
-            value={user?.idNumber || ''}  // ✅ Dynamic ID
+            value={user?.idNumber || ''} 
             readOnly 
             className="w-full bg-dark-primary border border-dark-secondary rounded px-3 py-2 text-white cursor-not-allowed"
           />

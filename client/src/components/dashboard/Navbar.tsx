@@ -25,14 +25,12 @@ const Navbar: React.FC<NavbarProps> = ({ activeItem = "Home" }) => {
   return (
     <nav className="bg-dark-primary shadow-md border-b border-dark-tertiary">
       <ul className="container mx-auto px-2 sm:px-4 lg:px-6 flex flex-wrap justify-center md:justify-start space-x-0 md:space-x-1 py-1.5">
-        {/* All links now navigate to the main dashboard page. */}
         <NavItem icon={<HomeIcon />} label="Home" href="/dashboard" isActive={activeItem === "Home"} className={navItemBaseClass}/>
-        <NavItem icon={<TableCellsIcon />} label="Routine" href="/dashboard" isActive={activeItem === "Routine"} className={navItemBaseClass}/>
+        {/* UPDATE: Changed href to "/routine" */}
+        <NavItem icon={<TableCellsIcon />} label="Routine" href="/routine" isActive={activeItem === "Routine"} className={navItemBaseClass}/>
         <NavItem icon={<DocumentChartBarIcon />} label="Attendance" href="/dashboard" isActive={activeItem === "Attendance"} className={navItemBaseClass}/>
         
         <NavItem icon={<TrophyIcon />} label="Grades" isDropdown isActive={["Grades", "Disputes"].includes(activeItem || "")} className={navItemBaseClass}>
-           <SubNavItem label="View Grades" href="/dashboard" isActive={activeItem === "Grades"} />
-           {/* This link correctly navigates to the separate Grade Dispute page. */}
            <SubNavItem label="Grade Dispute" href="/disputes" isActive={activeItem === "Disputes"} />
         </NavItem>
         

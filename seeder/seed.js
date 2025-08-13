@@ -63,17 +63,26 @@ const courses = {
     "CSE215L": { title: 'Programming Language II Lab', credits: 1, schedule: [{ day: 'Wednesday', time: '02:00 PM - 03:30 PM', room: 'LIB604' }] },
     "CSE225": { title: 'Data Structures & Algorithms', credits: 3, schedule: [{ day: 'Monday', time: '08:00 AM - 09:30 AM', room: 'SAC301' }, { day: 'Wednesday', time: '08:00 AM - 09:30 AM', room: 'SAC301' }] },
     "CSE225L": { title: 'Data Structures & Algorithms Lab', credits: 1, schedule: [{ day: 'Sunday', time: '08:00 AM - 09:30 AM', room: 'LIB601' }] },
+    "CSE327": { title: 'Software Engineering', credits: 3, schedule: [{ day: 'Monday', time: '02:00 PM - 03:30 PM', room: 'NAC601' }] },
+    "CSE331": { title: 'Microprocessor Interfacing', credits: 3, schedule: [{ day: 'Tuesday', time: '11:20 AM - 12:50 PM', room: 'SAC405' }] },
+    "CSE373": { title: 'Design and Analysis of Algorithms', credits: 3, schedule: [{ day: 'Wednesday', time: '09:40 AM - 11:10 AM', room: 'NAC209' }] },
+    "CSE411": { title: 'Advanced Database Management Systems', credits: 3, schedule: [{ day: 'Thursday', time: '03:40 PM - 05:10 PM', room: 'LIB608' }] },
 };
 
 const enrollments = {
     "student-samiyeel-01": [
         { courseId: "CSE115", semester: "Spring 2025", grade: "A", attendanceSummary: { present: 22, absent: 2, total: 24 } },
         { courseId: "CSE115L", semester: "Spring 2025", grade: "A", attendanceSummary: { present: 11, absent: 1, total: 12 } },
-        { courseId: "CSE225", semester: "Summer 2025", grade: "IP", attendanceSummary: { present: 4, absent: 0, total: 4 } }, // IP = In Progress
-        { courseId: "CSE173", semester: "Spring 2025", grade: "A-", attendanceSummary: { present: 23, absent: 1, total: 24 } }
+        { courseId: "CSE173", semester: "Spring 2025", grade: "A-", attendanceSummary: { present: 23, absent: 1, total: 24 } },
+        { courseId: "CSE225", semester: "Summer 2025", grade: "B", attendanceSummary: { present: 20, absent: 4, total: 24 } },
+        { courseId: "CSE225L", semester: "Summer 2025", grade: "A", attendanceSummary: { present: 12, absent: 0, total: 12 } },
+        { courseId: "CSE215", semester: "Summer 2025", grade: "A-", attendanceSummary: { present: 21, absent: 3, total: 24 } },
+        { courseId: "CSE327", semester: "Fall 2025", grade: "IP", attendanceSummary: { present: 4, absent: 0, total: 4 } }
     ],
     "student-atique-02": [
         { courseId: "CSE115", semester: "Spring 2025", grade: "B+", attendanceSummary: { present: 20, absent: 4, total: 24 } },
+        { courseId: "CSE173", semester: "Spring 2025", grade: "A", attendanceSummary: { present: 24, absent: 0, total: 24 } },
+        { courseId: "CSE373", semester: "Fall 2025", grade: "IP", attendanceSummary: { present: 3, absent: 1, total: 4 } }
     ]
 };
 
@@ -91,9 +100,22 @@ const gradeDisputes = [
         facultyId: "TNS1",
         resolutionDetails: null,
         resolvedAt: null
+    },
+    {
+        studentUid: "student-atique-02",
+        studentId: "2132882642",
+        courseId: "CSE115",
+        semester: "Spring 2025",
+        currentGrade: "B+",
+        expectedGrade: "A-",
+        reason: "My attendance was perfect and I completed all assignments. I believe my grade should be higher.",
+        status: "Resolved",
+        submittedAt: admin.firestore.FieldValue.serverTimestamp(),
+        facultyId: "TNS1",
+        resolutionDetails: "After re-evaluation, the final grade remains B+.",
+        resolvedAt: admin.firestore.FieldValue.serverTimestamp()
     }
 ];
-
 
 const seedData = async () => {
   const batch = db.batch();
